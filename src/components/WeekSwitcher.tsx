@@ -1,0 +1,66 @@
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight, PartyPopper } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+interface WeekSwitcherProps {
+  currentWeek: number;
+  totalWeeks: number;
+  onPreviousWeek: () => void;
+  onNextWeek: () => void;
+  showCompletionMessage?: boolean;
+}
+
+export function WeekSwitcher({
+  currentWeek,
+  totalWeeks,
+  onPreviousWeek,
+  onNextWeek,
+  showCompletionMessage,
+}: WeekSwitcherProps) {
+  const isFirstWeek = currentWeek === 1;
+  const isLastWeek = currentWeek === totalWeeks;
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onPreviousWeek}
+          disabled={isFirstWeek}
+          className="rounded-xl hover:bg-muted disabled:opacity-30"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </Button>
+        
+        <div className="text-center min-w-[100px]">
+          <span className="text-base font-medium">Week {currentWeek}</span>
+        </div>
+        
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onNextWeek}
+          disabled={isLastWeek}
+          className="rounded-xl hover:bg-muted disabled:opacity-30"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </Button>
+      </div>
+
+      <AnimatePresence>
+        {showCompletionMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.9 }}
+            className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium"
+          >
+            <PartyPopper className="w-4 h-4" />
+            <span>Week completed! Moving to Week {currentWeek + 1}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}

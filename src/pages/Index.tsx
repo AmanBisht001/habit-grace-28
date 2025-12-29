@@ -19,6 +19,7 @@ const Index = () => {
     toggleHabitStatus, 
     getHabitStats,
     getMonthlyStats,
+    updateHabit,
   } = useHabitData();
 
   // Calculate total weeks in the current month
@@ -151,6 +152,7 @@ const Index = () => {
               habits={habits} 
               getHabitStats={getHabitStats}
               currentMonth={currentMonth}
+              onUpdateHabit={updateHabit}
             />
           </motion.div>
 

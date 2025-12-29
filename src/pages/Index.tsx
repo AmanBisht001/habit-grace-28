@@ -4,7 +4,6 @@ import { addMonths, subMonths } from 'date-fns';
 import { Header } from '@/components/Header';
 import { HabitsList } from '@/components/HabitsList';
 import { HabitGrid } from '@/components/HabitGrid';
-import { Dashboard } from '@/components/Dashboard';
 import { useHabitData } from '@/hooks/useHabitData';
 
 const Index = () => {
@@ -15,9 +14,6 @@ const Index = () => {
     toggleHabitStatus, 
     getHabitStats,
     getMonthlyStats,
-    getDailyStats,
-    getWeeklyStats,
-    getTopHabits
   } = useHabitData();
 
   const monthlyStats = useMemo(() => getMonthlyStats(currentMonth), [getMonthlyStats, currentMonth]);
@@ -50,27 +46,18 @@ const Index = () => {
             />
           </motion.div>
 
-          {/* Right Panel - Grid & Dashboard */}
+          {/* Right Panel - Grid */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="xl:col-span-8 space-y-6"
+            className="xl:col-span-8"
           >
             <HabitGrid
               habits={habits}
               currentMonth={currentMonth}
               getHabitStatus={getHabitStatus}
               toggleHabitStatus={toggleHabitStatus}
-            />
-
-            <Dashboard
-              habits={habits}
-              currentMonth={currentMonth}
-              getMonthlyStats={getMonthlyStats}
-              getDailyStats={getDailyStats}
-              getWeeklyStats={getWeeklyStats}
-              getTopHabits={getTopHabits}
             />
           </motion.div>
         </div>
@@ -80,7 +67,7 @@ const Index = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="mt-6 glass-card p-4 flex items-center justify-center gap-6"
+          className="mt-6 glass-card p-4 flex items-center justify-center gap-6 flex-wrap"
         >
           <span className="text-sm text-muted-foreground font-medium">Legend:</span>
           <div className="flex items-center gap-2">

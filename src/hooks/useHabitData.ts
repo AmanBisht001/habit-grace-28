@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { HabitData, HabitStatus, DEFAULT_HABITS } from '@/types/habit';
+import { Habit, HabitData, HabitStatus, DEFAULT_HABITS } from '@/types/habit';
 
 const STORAGE_KEY = 'habit-tracker-data';
 
@@ -25,6 +25,15 @@ export function useHabitData() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }, [data]);
+
+  const updateHabit = useCallback((updatedHabit: Habit) => {
+    setData((prev) => ({
+      ...prev,
+      habits: prev.habits.map((h) =>
+        h.id === updatedHabit.id ? updatedHabit : h
+      ),
+    }));
+  }, []);
 
   const toggleHabitStatus = useCallback((habitId: string, date: string) => {
     setData((prev) => {
@@ -155,6 +164,7 @@ export function useHabitData() {
 
   return {
     habits: data.habits,
+    updateHabit,
     toggleHabitStatus,
     setHabitStatus,
     getHabitStatus,

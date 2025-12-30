@@ -21,20 +21,20 @@ export function WeekSwitcher({
   const isLastWeek = currentWeek === totalWeeks;
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="flex items-center gap-4">
+    <div className="flex flex-col items-center gap-1 sm:gap-2">
+      <div className="flex items-center gap-2 sm:gap-4">
         <Button
           variant="ghost"
           size="icon"
           onClick={onPreviousWeek}
           disabled={isFirstWeek}
-          className="rounded-xl hover:bg-muted disabled:opacity-30"
+          className="rounded-xl hover:bg-muted disabled:opacity-30 h-8 w-8 sm:h-10 sm:w-10"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
         </Button>
         
-        <div className="text-center min-w-[100px]">
-          <span className="text-base font-medium">Week {currentWeek}</span>
+        <div className="text-center min-w-[70px] sm:min-w-[100px]">
+          <span className="text-sm sm:text-base font-medium">Week {currentWeek}</span>
         </div>
         
         <Button
@@ -42,9 +42,9 @@ export function WeekSwitcher({
           size="icon"
           onClick={onNextWeek}
           disabled={isLastWeek}
-          className="rounded-xl hover:bg-muted disabled:opacity-30"
+          className="rounded-xl hover:bg-muted disabled:opacity-30 h-8 w-8 sm:h-10 sm:w-10"
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
         </Button>
       </div>
 
@@ -54,10 +54,10 @@ export function WeekSwitcher({
             initial={{ opacity: 0, y: -10, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.9 }}
-            className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium"
+            className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 bg-primary/10 text-primary rounded-full text-xs sm:text-sm font-medium"
           >
-            <PartyPopper className="w-4 h-4" />
-            <span>Week completed! Moving to Week {currentWeek + 1}</span>
+            <PartyPopper className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span>Week done! Next: Week {currentWeek + 1}</span>
           </motion.div>
         )}
       </AnimatePresence>

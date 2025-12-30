@@ -73,10 +73,10 @@ export function HabitGrid({
   const activeWeekDays = weeks[currentWeek - 1] || [];
 
   return (
-    <div className="glass-card p-6 overflow-x-auto">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="section-title flex items-center gap-2">
-          <span className="text-2xl">📊</span>
+    <div className="glass-card p-3 sm:p-6 overflow-x-auto">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
+        <h2 className="section-title flex items-center gap-2 text-base sm:text-lg">
+          <span className="text-xl sm:text-2xl">📊</span>
           Weekly Tracker
         </h2>
         
@@ -89,7 +89,7 @@ export function HabitGrid({
         />
       </div>
 
-      <div className="min-w-[600px]">
+      <div className="min-w-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={`${currentMonth.toISOString()}-week-${currentWeek}`}
@@ -99,8 +99,8 @@ export function HabitGrid({
             transition={{ duration: 0.2 }}
           >
             {/* Day headers */}
-            <div className="flex gap-2 mb-3">
-              <div className="w-36 flex-shrink-0" /> {/* Spacer for habit names */}
+            <div className="flex gap-1 sm:gap-2 mb-3">
+              <div className="w-24 sm:w-36 flex-shrink-0" /> {/* Spacer for habit names */}
               {DAYS.map((day, dayIndex) => {
                 const currentDay = activeWeekDays[dayIndex];
                 const isTodayDate = currentDay && isToday(currentDay);
@@ -109,18 +109,18 @@ export function HabitGrid({
                   <div 
                     key={day} 
                     className={cn(
-                      'day-header flex flex-col items-center gap-1 w-10',
+                      'day-header flex flex-col items-center gap-0.5 sm:gap-1 w-8 sm:w-10 flex-shrink-0',
                       isTodayDate && 'text-success font-bold'
                     )}
                   >
                     <span className={cn(
-                      'text-[10px]',
+                      'text-[9px] sm:text-[10px]',
                       isTodayDate && 'text-success'
-                    )}>{day}</span>
+                    )}>{day.slice(0, 2)}</span>
                     {currentDay && (
                       <span className={cn(
-                        'text-xs',
-                        isTodayDate && 'bg-success text-success-foreground rounded-full w-5 h-5 flex items-center justify-center font-bold'
+                        'text-[10px] sm:text-xs',
+                        isTodayDate && 'bg-success text-success-foreground rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center font-bold'
                       )}>
                         {format(currentDay, 'd')}
                       </span>
@@ -134,19 +134,19 @@ export function HabitGrid({
             {habits.map((habit, habitIndex) => (
               <motion.div 
                 key={habit.id} 
-                className="flex items-center gap-2 py-1.5"
+                className="flex items-center gap-1 sm:gap-2 py-1 sm:py-1.5"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: habitIndex * 0.03 }}
               >
-                <div className="w-36 flex-shrink-0 flex items-center gap-2">
-                  <span className="text-lg">{habit.emoji}</span>
-                  <span className="text-xs text-muted-foreground truncate">{habit.name}</span>
+                <div className="w-24 sm:w-36 flex-shrink-0 flex items-center gap-1 sm:gap-2">
+                  <span className="text-base sm:text-lg">{habit.emoji}</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground truncate">{habit.name}</span>
                 </div>
                 
                 {activeWeekDays.map((day, dayIndex) => {
                   if (!day) {
-                    return <div key={dayIndex} className="w-10 h-8 flex items-center justify-center" />;
+                    return <div key={dayIndex} className="w-8 sm:w-10 h-7 sm:h-8 flex items-center justify-center flex-shrink-0" />;
                   }
                   
                   const dateStr = format(day, 'yyyy-MM-dd');
@@ -158,17 +158,17 @@ export function HabitGrid({
                     <div 
                       key={dateStr} 
                       className={cn(
-                        'w-10 flex items-center justify-center relative',
+                        'w-8 sm:w-10 flex items-center justify-center relative flex-shrink-0',
                         isTodayDate && 'today-column'
                       )}
                     >
                       {isTodayDate && (
-                        <div className="absolute inset-0 -m-1 bg-success/10 rounded-xl ring-2 ring-success/30" />
+                        <div className="absolute inset-0 -m-0.5 sm:-m-1 bg-success/10 rounded-lg sm:rounded-xl ring-1 sm:ring-2 ring-success/30" />
                       )}
                       <HabitMarker
                         status={status}
                         onClick={() => toggleHabitStatus(habit.id, dateStr)}
-                        size="md"
+                        size="sm"
                         isToday={isTodayDate}
                         disabled={isPaused}
                       />

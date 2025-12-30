@@ -165,7 +165,7 @@ const Index = () => {
   }, [totalWeeks]);
 
   return (
-    <div className="min-h-screen p-4 lg:p-6">
+    <div className="min-h-screen p-2 sm:p-4 lg:p-6">
       <div className="max-w-[1600px] mx-auto">
         <Header
           currentMonth={currentMonth}
@@ -174,13 +174,13 @@ const Index = () => {
           monthlyPercentage={monthlyStats.percentage}
         />
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        <div className="flex flex-col xl:grid xl:grid-cols-12 gap-4 sm:gap-6">
           {/* Left Panel - Habits List */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
-            className="xl:col-span-4"
+            className="xl:col-span-4 order-2 xl:order-1"
           >
             <HabitsList 
               habits={habits} 
@@ -197,7 +197,7 @@ const Index = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="xl:col-span-8"
+            className="xl:col-span-8 order-1 xl:order-2"
           >
             <HabitGrid
               habits={habits}
@@ -219,42 +219,42 @@ const Index = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="mt-6 glass-card p-4 flex items-center justify-center gap-6 flex-wrap"
+          className="mt-4 sm:mt-6 glass-card p-3 sm:p-4 flex items-center justify-center gap-3 sm:gap-6 flex-wrap"
         >
-          <span className="text-sm text-muted-foreground font-medium">Legend:</span>
-          <div className="flex items-center gap-2">
-            <div className="habit-marker habit-marker-empty w-6 h-6 rounded-lg" />
-            <span className="text-xs text-muted-foreground">Pending</span>
+          <span className="text-xs sm:text-sm text-muted-foreground font-medium">Legend:</span>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="habit-marker habit-marker-empty w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg" />
+            <span className="text-[10px] sm:text-xs text-muted-foreground">Pending</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="habit-marker habit-marker-completed w-6 h-6 rounded-lg flex items-center justify-center">
-              <svg className="w-3 h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="habit-marker habit-marker-completed w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg flex items-center justify-center">
+              <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <span className="text-xs text-muted-foreground">Completed</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground">Done</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="habit-marker habit-marker-skipped w-6 h-6 rounded-lg flex items-center justify-center">
-              <svg className="w-3 h-3 text-warning-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="habit-marker habit-marker-skipped w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg flex items-center justify-center">
+              <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-warning-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <span className="text-xs text-muted-foreground">Skipped</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground">Skipped</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="habit-marker habit-marker-paused w-6 h-6 rounded-lg flex items-center justify-center">
-              <svg className="w-3 h-3 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="habit-marker habit-marker-paused w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg flex items-center justify-center">
+              <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 9v6m4-6v6" />
               </svg>
             </div>
-            <span className="text-xs text-muted-foreground">Paused</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground">Paused</span>
           </div>
         </motion.div>
 
         {/* Footer */}
-        <footer className="mt-8 text-center text-xs text-muted-foreground">
-          <p>Click markers to cycle: Pending → Completed → Missed → Skipped</p>
+        <footer className="mt-6 sm:mt-8 text-center text-[10px] sm:text-xs text-muted-foreground px-2">
+          <p>Tap markers to cycle: Pending → Completed → Missed → Skipped</p>
           <p className="mt-1">Data auto-saves to local storage</p>
         </footer>
       </div>

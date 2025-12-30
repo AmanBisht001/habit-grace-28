@@ -12,15 +12,15 @@ interface HabitMarkerProps {
 }
 
 const sizeClasses = {
-  sm: 'w-6 h-6 rounded-lg',
-  md: 'w-8 h-8 rounded-xl',
-  lg: 'w-10 h-10 rounded-xl',
+  sm: 'w-6 h-6 sm:w-7 sm:h-7 rounded-lg',
+  md: 'w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl',
+  lg: 'w-8 h-8 sm:w-10 sm:h-10 rounded-xl',
 };
 
 const iconSizes = {
-  sm: 12,
-  md: 14,
-  lg: 16,
+  sm: 10,
+  md: 12,
+  lg: 14,
 };
 
 export function HabitMarker({ status, onClick, size = 'md', isToday = false, disabled = false }: HabitMarkerProps) {

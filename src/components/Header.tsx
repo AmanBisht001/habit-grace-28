@@ -25,17 +25,18 @@ export function Header({ currentMonth, onPreviousMonth, onNextMonth, monthlyPerc
     <motion.header
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass-card-elevated px-6 py-4 mb-6 flex items-center justify-between sticky top-4 z-10"
+      className="glass-card-elevated px-3 sm:px-6 py-3 sm:py-4 mb-4 sm:mb-6 flex flex-col sm:flex-row items-center gap-3 sm:gap-0 sm:justify-between sticky top-2 sm:top-4 z-10"
     >
-      <div className="flex items-center gap-6">
+      {/* Top row on mobile: Logo + Navigation */}
+      <div className="flex items-center justify-between w-full sm:w-auto gap-4">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-6 h-6 text-primary" />
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-glow">
+          <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+          <h1 className="text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-glow">
             HabitFlow
           </h1>
         </div>
 
-        <nav className="hidden sm:flex items-center gap-1">
+        <nav className="flex items-center gap-1">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
@@ -44,14 +45,14 @@ export function Header({ currentMonth, onPreviousMonth, onNextMonth, monthlyPerc
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    'rounded-xl gap-2 transition-all',
+                    'rounded-xl gap-1 sm:gap-2 transition-all px-2 sm:px-3',
                     isActive 
                       ? 'bg-primary/10 text-primary hover:bg-primary/15' 
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   )}
                 >
                   <item.icon className="w-4 h-4" />
-                  {item.label}
+                  <span className="hidden xs:inline text-xs sm:text-sm">{item.label}</span>
                 </Button>
               </Link>
             );
@@ -59,36 +60,39 @@ export function Header({ currentMonth, onPreviousMonth, onNextMonth, monthlyPerc
         </nav>
       </div>
 
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onPreviousMonth}
-          className="rounded-xl hover:bg-muted"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </Button>
-        
-        <div className="text-center min-w-[140px]">
-          <h2 className="text-lg font-semibold">{format(currentMonth, 'MMMM yyyy')}</h2>
+      {/* Bottom row on mobile: Month switcher + Progress */}
+      <div className="flex items-center justify-between w-full sm:w-auto gap-2 sm:gap-4">
+        <div className="flex items-center gap-1 sm:gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onPreviousMonth}
+            className="rounded-xl hover:bg-muted h-8 w-8 sm:h-10 sm:w-10"
+          >
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+          </Button>
+          
+          <div className="text-center min-w-[100px] sm:min-w-[140px]">
+            <h2 className="text-sm sm:text-lg font-semibold">{format(currentMonth, 'MMM yyyy')}</h2>
+          </div>
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onNextMonth}
+            className="rounded-xl hover:bg-muted h-8 w-8 sm:h-10 sm:w-10"
+          >
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+          </Button>
         </div>
-        
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onNextMonth}
-          className="rounded-xl hover:bg-muted"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </Button>
-      </div>
 
-      <div className="flex items-center gap-3">
-        <div className="text-right hidden sm:block">
-          <p className="text-xs text-muted-foreground">Monthly Progress</p>
-          <p className="text-lg font-bold text-primary">{monthlyPercentage}%</p>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="text-right">
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Progress</p>
+            <p className="text-sm sm:text-lg font-bold text-primary">{monthlyPercentage}%</p>
+          </div>
+          <ProgressRing percentage={monthlyPercentage} size={36} strokeWidth={3} />
         </div>
-        <ProgressRing percentage={monthlyPercentage} size={48} strokeWidth={4} />
       </div>
     </motion.header>
   );

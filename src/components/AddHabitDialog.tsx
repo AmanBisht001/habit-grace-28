@@ -54,30 +54,31 @@ export function AddHabitDialog({ onAddHabit }: AddHabitDialogProps) {
         <Button 
           variant="outline" 
           size="sm"
-          className="gap-2 border-dashed border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50"
+          className="gap-1 sm:gap-2 border-dashed border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 px-2 sm:px-3 h-8 sm:h-9 text-xs sm:text-sm"
         >
-          <Plus className="w-4 h-4" />
-          Add Habit
+          <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span className="hidden xs:inline">Add Habit</span>
+          <span className="xs:hidden">Add</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[400px] glass-card-elevated">
+      <DialogContent className="sm:max-w-[400px] glass-card-elevated max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold flex items-center gap-2">
-            <span className="text-2xl">➕</span>
+          <DialogTitle className="text-lg sm:text-xl font-semibold flex items-center gap-2">
+            <span className="text-xl sm:text-2xl">➕</span>
             Add New Habit
           </DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 mt-3 sm:mt-4">
           <div className="space-y-2">
-            <Label htmlFor="emoji" className="text-sm font-medium">Choose an Emoji</Label>
-            <div className="flex flex-wrap gap-2">
+            <Label htmlFor="emoji" className="text-xs sm:text-sm font-medium">Choose an Emoji</Label>
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {EMOJI_OPTIONS.map((e) => (
                 <motion.button
                   key={e}
                   type="button"
                   onClick={() => setEmoji(e)}
-                  className={`w-10 h-10 rounded-xl text-xl flex items-center justify-center transition-all ${
+                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl text-base sm:text-xl flex items-center justify-center transition-all ${
                     emoji === e 
                       ? 'bg-primary/20 ring-2 ring-primary scale-110' 
                       : 'bg-muted hover:bg-muted/80'

@@ -44,16 +44,16 @@ export function HabitsList({ habits, getHabitStats, currentMonth, onUpdateHabit,
 
   return (
     <>
-      <div className="glass-card p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="section-title flex items-center gap-2">
-            <span className="text-2xl">📋</span>
+      <div className="glass-card p-3 sm:p-6">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <h2 className="section-title flex items-center gap-2 text-base sm:text-lg">
+            <span className="text-xl sm:text-2xl">📋</span>
             Daily Habits
           </h2>
           <AddHabitDialog onAddHabit={onAddHabit} />
         </div>
         
-        <div className="space-y-1">
+        <div className="space-y-0.5 sm:space-y-1">
           {habits.map((habit, index) => {
             const stats = getHabitStats(habit.id, currentMonth);
             const isGoalReached = stats.percentage >= 100;
@@ -66,49 +66,49 @@ export function HabitsList({ habits, getHabitStats, currentMonth, onUpdateHabit,
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}
                 className={cn(
-                  'habit-row group',
+                  'habit-row group py-2 sm:py-3 px-2 sm:px-4 gap-2 sm:gap-4',
                   isGoalReached && 'bg-success-muted',
                   isBehind && !isGoalReached && 'bg-warning-muted/50'
                 )}
               >
-                <span className="text-2xl flex-shrink-0">{habit.emoji}</span>
+                <span className="text-lg sm:text-2xl flex-shrink-0">{habit.emoji}</span>
                 
                 <div className="flex-1 min-w-0">
-                  <p className="habit-name truncate">{habit.name}</p>
-                  <p className="habit-goal">
+                  <p className="habit-name truncate text-sm sm:text-base">{habit.name}</p>
+                  <p className="habit-goal text-[10px] sm:text-xs">
                     {stats.completed} / {habit.monthlyGoal} days
-                    {isGoalReached && <span className="ml-2 text-success">✓ Goal reached!</span>}
-                    {isBehind && !isGoalReached && <span className="ml-2 text-warning">⚠ Falling behind</span>}
+                    {isGoalReached && <span className="ml-1 sm:ml-2 text-success">✓</span>}
+                    {isBehind && !isGoalReached && <span className="ml-1 sm:ml-2 text-warning">⚠</span>}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2">
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 rounded-lg"
+                    className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity h-7 w-7 sm:h-8 sm:w-8 rounded-lg"
                     onClick={() => handleEditClick(habit)}
                   >
-                    <Pencil className="w-4 h-4" />
+                    <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 rounded-lg text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity h-7 w-7 sm:h-8 sm:w-8 rounded-lg text-destructive hover:text-destructive hover:bg-destructive/10"
                     onClick={() => handleDeleteClick(habit)}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </Button>
                   <span className={cn(
-                    'text-sm font-semibold',
+                    'text-xs sm:text-sm font-semibold min-w-[32px] sm:min-w-[40px] text-right',
                     isGoalReached ? 'text-success' : isBehind ? 'text-warning' : 'text-muted-foreground'
                   )}>
                     {stats.percentage}%
                   </span>
                   <ProgressRing 
                     percentage={stats.percentage} 
-                    size={36} 
-                    strokeWidth={3}
+                    size={28} 
+                    strokeWidth={2.5}
                   />
                 </div>
               </motion.div>

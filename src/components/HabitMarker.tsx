@@ -8,6 +8,7 @@ interface HabitMarkerProps {
   onClick: () => void;
   size?: 'sm' | 'md' | 'lg';
   isToday?: boolean;
+  disabled?: boolean;
 }
 
 const sizeClasses = {
@@ -22,12 +23,14 @@ const iconSizes = {
   lg: 16,
 };
 
-export function HabitMarker({ status, onClick, size = 'md', isToday = false }: HabitMarkerProps) {
+export function HabitMarker({ status, onClick, size = 'md', isToday = false, disabled = false }: HabitMarkerProps) {
   const iconSize = iconSizes[size];
+  const isPaused = status === 'paused';
 
   return (
     <motion.button
       onClick={onClick}
+      disabled={disabled || isPaused}
       className={cn(
         'habit-marker relative flex items-center justify-center transition-all duration-300',
         sizeClasses[size],
@@ -36,11 +39,13 @@ export function HabitMarker({ status, onClick, size = 'md', isToday = false }: H
           'habit-marker-completed': status === 'completed',
           'habit-marker-missed': status === 'missed',
           'habit-marker-skipped': status === 'skipped',
+          'habit-marker-paused': status === 'paused',
         },
-        isToday && status === 'empty' && 'ring-2 ring-primary/30 ring-offset-2 ring-offset-background'
+        isToday && status === 'empty' && 'ring-2 ring-primary/30 ring-offset-2 ring-offset-background',
+        (disabled || isPaused) && 'cursor-not-allowed opacity-60'
       )}
-      whileHover={{ scale: 1.15 }}
-      whileTap={{ scale: 0.95 }}
+      whileHover={!disabled && !isPaused ? { scale: 1.15 } : undefined}
+      whileTap={!disabled && !isPaused ? { scale: 0.95 } : undefined}
       aria-label={`Mark habit as ${status}`}
     >
       <AnimatePresence mode="wait">
@@ -68,13 +73,24 @@ export function HabitMarker({ status, onClick, size = 'md', isToday = false }: H
         )}
         {status === 'skipped' && (
           <motion.div
+            key="x-skipped"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+          >
+            <X size={iconSize} className="text-warning-foreground" strokeWidth={3} />
+          </motion.div>
+        )}
+        {status === 'paused' && (
+          <motion.div
             key="pause"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 400, damping: 15 }}
           >
-            <Pause size={iconSize} className="text-warning-foreground" strokeWidth={3} />
+            <Pause size={iconSize} className="text-muted-foreground" strokeWidth={3} />
           </motion.div>
         )}
       </AnimatePresence>

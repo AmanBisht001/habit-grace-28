@@ -1,22 +1,30 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Habit, HabitData, HabitStatus, DEFAULT_HABITS } from '@/types/habit';
+import { format, isBefore, isToday, parseISO, startOfDay } from 'date-fns';
 
 const STORAGE_KEY = 'habit-tracker-data';
 
+const getTodayStr = () => format(new Date(), 'yyyy-MM-dd');
+
 const getInitialData = (): HabitData => {
   if (typeof window === 'undefined') {
-    return { habits: DEFAULT_HABITS, entries: {} };
+    return { habits: DEFAULT_HABITS, entries: {}, joinDate: getTodayStr() };
   }
   
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored) {
     try {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      // Ensure joinDate exists (migration for old data)
+      if (!parsed.joinDate) {
+        parsed.joinDate = getTodayStr();
+      }
+      return parsed;
     } catch {
-      return { habits: DEFAULT_HABITS, entries: {} };
+      return { habits: DEFAULT_HABITS, entries: {}, joinDate: getTodayStr() };
     }
   }
-  return { habits: DEFAULT_HABITS, entries: {} };
+  return { habits: DEFAULT_HABITS, entries: {}, joinDate: getTodayStr() };
 };
 
 export function useHabitData() {
@@ -35,10 +43,39 @@ export function useHabitData() {
     }));
   }, []);
 
+  const addHabit = useCallback((newHabit: Omit<Habit, 'id'>) => {
+    const id = `habit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    setData((prev) => ({
+      ...prev,
+      habits: [...prev.habits, { ...newHabit, id }],
+    }));
+  }, []);
+
+  const removeHabit = useCallback((habitId: string) => {
+    setData((prev) => {
+      // Remove habit and all its entries
+      const newEntries = { ...prev.entries };
+      Object.keys(newEntries).forEach((key) => {
+        if (key.startsWith(`${habitId}-`)) {
+          delete newEntries[key];
+        }
+      });
+      
+      return {
+        ...prev,
+        habits: prev.habits.filter((h) => h.id !== habitId),
+        entries: newEntries,
+      };
+    });
+  }, []);
+
   const toggleHabitStatus = useCallback((habitId: string, date: string) => {
     setData((prev) => {
       const key = `${habitId}-${date}`;
       const currentStatus = prev.entries[key] || 'empty';
+      
+      // Don't allow changing paused status
+      if (currentStatus === 'paused') return prev;
       
       const statusCycle: HabitStatus[] = ['empty', 'completed', 'missed', 'skipped'];
       const currentIndex = statusCycle.indexOf(currentStatus);
@@ -65,8 +102,36 @@ export function useHabitData() {
   }, []);
 
   const getHabitStatus = useCallback((habitId: string, date: string): HabitStatus => {
-    return data.entries[`${habitId}-${date}`] || 'empty';
-  }, [data.entries]);
+    const joinDate = parseISO(data.joinDate);
+    const checkDate = parseISO(date);
+    const today = startOfDay(new Date());
+    
+    // Before join date: paused
+    if (isBefore(checkDate, startOfDay(joinDate))) {
+      return 'paused';
+    }
+    
+    const storedStatus = data.entries[`${habitId}-${date}`];
+    
+    // If there's a stored status, return it
+    if (storedStatus) {
+      return storedStatus;
+    }
+    
+    // If the date is in the past (not today) and no status, mark as skipped
+    if (isBefore(checkDate, today) && !isToday(checkDate)) {
+      return 'skipped';
+    }
+    
+    // Today or future: empty (pending)
+    return 'empty';
+  }, [data.entries, data.joinDate]);
+
+  const isDateBeforeJoin = useCallback((date: string): boolean => {
+    const joinDate = parseISO(data.joinDate);
+    const checkDate = parseISO(date);
+    return isBefore(checkDate, startOfDay(joinDate));
+  }, [data.joinDate]);
 
   const getHabitStats = useCallback((habitId: string, month: Date) => {
     const habit = data.habits.find(h => h.id === habitId);
@@ -164,10 +229,14 @@ export function useHabitData() {
 
   return {
     habits: data.habits,
+    joinDate: data.joinDate,
     updateHabit,
+    addHabit,
+    removeHabit,
     toggleHabitStatus,
     setHabitStatus,
     getHabitStatus,
+    isDateBeforeJoin,
     getHabitStats,
     getMonthlyStats,
     getDailyStats,

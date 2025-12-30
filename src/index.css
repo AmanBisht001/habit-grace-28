@@ -207,6 +207,11 @@
     box-shadow: 0 0 15px hsl(var(--warning) / 0.3);
   }
 
+  .habit-marker-paused {
+    @apply bg-muted border-2 border-dashed;
+    border-color: hsl(var(--muted-foreground) / 0.3);
+  }
+
   .progress-ring {
     @apply relative;
   }

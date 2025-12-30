@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, getDay, format } from 'date-fns';
+import { addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, getDay, format, isToday, isSameMonth } from 'date-fns';
 import { Header } from '@/components/Header';
 import { HabitsList } from '@/components/HabitsList';
 import { HabitGrid } from '@/components/HabitGrid';
@@ -12,6 +12,7 @@ const Index = () => {
   const [currentWeek, setCurrentWeek] = useState(1);
   const [showWeekCompletionMessage, setShowWeekCompletionMessage] = useState(false);
   const prevWeekCompleteRef = useRef(false);
+  const hasInitialized = useRef(false);
   
   const { 
     habits, 
@@ -20,6 +21,9 @@ const Index = () => {
     getHabitStats,
     getMonthlyStats,
     updateHabit,
+    addHabit,
+    removeHabit,
+    isDateBeforeJoin,
   } = useHabitData();
 
   // Calculate total weeks in the current month
@@ -35,13 +39,13 @@ const Index = () => {
     return Math.ceil(totalDaysWithOffset / 7);
   }, [currentMonth]);
 
-  // Get current week's days for completion check
-  const currentWeekDays = useMemo(() => {
+  // Get weeks array for navigation
+  const weeksArray = useMemo(() => {
     const start = startOfMonth(currentMonth);
     const end = endOfMonth(currentMonth);
     const days = eachDayOfInterval({ start, end });
     
-    const weeksArray: (Date | null)[][] = [];
+    const weeks: (Date | null)[][] = [];
     let currentWeekDaysArr: (Date | null)[] = [];
     
     const firstDayOfWeek = getDay(start);
@@ -54,7 +58,7 @@ const Index = () => {
     days.forEach((day) => {
       currentWeekDaysArr.push(day);
       if (currentWeekDaysArr.length === 7) {
-        weeksArray.push(currentWeekDaysArr);
+        weeks.push(currentWeekDaysArr);
         currentWeekDaysArr = [];
       }
     });
@@ -63,11 +67,41 @@ const Index = () => {
       while (currentWeekDaysArr.length < 7) {
         currentWeekDaysArr.push(null);
       }
-      weeksArray.push(currentWeekDaysArr);
+      weeks.push(currentWeekDaysArr);
     }
     
+    return weeks;
+  }, [currentMonth]);
+
+  // Get current week's days for completion check
+  const currentWeekDays = useMemo(() => {
     return weeksArray[currentWeek - 1] || [];
-  }, [currentMonth, currentWeek]);
+  }, [weeksArray, currentWeek]);
+
+  // Find which week contains today and auto-navigate on load
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    const today = new Date();
+    
+    // If current month is not the same as today's month, switch to today's month
+    if (!isSameMonth(currentMonth, today)) {
+      setCurrentMonth(today);
+      return; // Will re-run after month change
+    }
+
+    // Find which week contains today
+    for (let weekIndex = 0; weekIndex < weeksArray.length; weekIndex++) {
+      const week = weeksArray[weekIndex];
+      for (const day of week) {
+        if (day && isToday(day)) {
+          setCurrentWeek(weekIndex + 1);
+          return;
+        }
+      }
+    }
+  }, [weeksArray, currentMonth]);
 
   // Check if current week is complete
   const isCurrentWeekComplete = useMemo(() => {
@@ -153,6 +187,8 @@ const Index = () => {
               getHabitStats={getHabitStats}
               currentMonth={currentMonth}
               onUpdateHabit={updateHabit}
+              onAddHabit={addHabit}
+              onRemoveHabit={removeHabit}
             />
           </motion.div>
 
@@ -173,6 +209,7 @@ const Index = () => {
               getHabitStatus={getHabitStatus}
               toggleHabitStatus={toggleHabitStatus}
               showWeekCompletionMessage={showWeekCompletionMessage}
+              isDateBeforeJoin={isDateBeforeJoin}
             />
           </motion.div>
         </div>
@@ -187,7 +224,7 @@ const Index = () => {
           <span className="text-sm text-muted-foreground font-medium">Legend:</span>
           <div className="flex items-center gap-2">
             <div className="habit-marker habit-marker-empty w-6 h-6 rounded-lg" />
-            <span className="text-xs text-muted-foreground">Empty</span>
+            <span className="text-xs text-muted-foreground">Pending</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="habit-marker habit-marker-completed w-6 h-6 rounded-lg flex items-center justify-center">
@@ -198,26 +235,26 @@ const Index = () => {
             <span className="text-xs text-muted-foreground">Completed</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="habit-marker habit-marker-missed w-6 h-6 rounded-lg flex items-center justify-center">
-              <svg className="w-3 h-3 text-destructive-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <div className="habit-marker habit-marker-skipped w-6 h-6 rounded-lg flex items-center justify-center">
+              <svg className="w-3 h-3 text-warning-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <span className="text-xs text-muted-foreground">Missed</span>
+            <span className="text-xs text-muted-foreground">Skipped</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="habit-marker habit-marker-skipped w-6 h-6 rounded-lg flex items-center justify-center">
-              <svg className="w-3 h-3 text-warning-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <div className="habit-marker habit-marker-paused w-6 h-6 rounded-lg flex items-center justify-center">
+              <svg className="w-3 h-3 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 9v6m4-6v6" />
               </svg>
             </div>
-            <span className="text-xs text-muted-foreground">Skipped</span>
+            <span className="text-xs text-muted-foreground">Paused</span>
           </div>
         </motion.div>
 
         {/* Footer */}
         <footer className="mt-8 text-center text-xs text-muted-foreground">
-          <p>Click markers to cycle: Empty → Completed → Missed → Skipped</p>
+          <p>Click markers to cycle: Pending → Completed → Missed → Skipped</p>
           <p className="mt-1">Data auto-saves to local storage</p>
         </footer>
       </div>

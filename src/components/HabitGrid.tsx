@@ -16,6 +16,7 @@ interface HabitGridProps {
   getHabitStatus: (habitId: string, date: string) => HabitStatus;
   toggleHabitStatus: (habitId: string, date: string) => void;
   showWeekCompletionMessage?: boolean;
+  isDateBeforeJoin: (date: string) => boolean;
 }
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -30,6 +31,7 @@ export function HabitGrid({
   getHabitStatus, 
   toggleHabitStatus,
   showWeekCompletionMessage,
+  isDateBeforeJoin,
 }: HabitGridProps) {
   const weeks = useMemo(() => {
     const start = startOfMonth(currentMonth);
@@ -108,14 +110,17 @@ export function HabitGrid({
                     key={day} 
                     className={cn(
                       'day-header flex flex-col items-center gap-1 w-10',
-                      isTodayDate && 'text-primary font-semibold'
+                      isTodayDate && 'text-success font-bold'
                     )}
                   >
-                    <span className="text-[10px]">{day}</span>
+                    <span className={cn(
+                      'text-[10px]',
+                      isTodayDate && 'text-success'
+                    )}>{day}</span>
                     {currentDay && (
                       <span className={cn(
                         'text-xs',
-                        isTodayDate && 'bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center'
+                        isTodayDate && 'bg-success text-success-foreground rounded-full w-5 h-5 flex items-center justify-center font-bold'
                       )}>
                         {format(currentDay, 'd')}
                       </span>
@@ -147,23 +152,25 @@ export function HabitGrid({
                   const dateStr = format(day, 'yyyy-MM-dd');
                   const status = getHabitStatus(habit.id, dateStr);
                   const isTodayDate = isToday(day);
+                  const isPaused = isDateBeforeJoin(dateStr);
                   
                   return (
                     <div 
                       key={dateStr} 
                       className={cn(
-                        'w-10 flex items-center justify-center',
-                        isTodayDate && 'relative'
+                        'w-10 flex items-center justify-center relative',
+                        isTodayDate && 'today-column'
                       )}
                     >
                       {isTodayDate && (
-                        <div className="absolute inset-0 -m-1 bg-primary/10 rounded-xl" />
+                        <div className="absolute inset-0 -m-1 bg-success/10 rounded-xl ring-2 ring-success/30" />
                       )}
                       <HabitMarker
                         status={status}
                         onClick={() => toggleHabitStatus(habit.id, dateStr)}
                         size="md"
                         isToday={isTodayDate}
+                        disabled={isPaused}
                       />
                     </div>
                   );

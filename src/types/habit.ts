@@ -1,4 +1,4 @@
-export type HabitStatus = 'empty' | 'completed' | 'missed' | 'skipped';
+export type HabitStatus = 'empty' | 'completed' | 'missed' | 'skipped' | 'paused';
 
 export interface Habit {
   id: string;
@@ -16,6 +16,7 @@ export interface HabitEntry {
 export interface HabitData {
   habits: Habit[];
   entries: Record<string, HabitStatus>; // key: `${habitId}-${date}`
+  joinDate: string; // YYYY-MM-DD format - when user first used the app
 }
 
 export const DEFAULT_HABITS: Habit[] = [

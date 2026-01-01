@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, Sparkles, LayoutGrid, BarChart3 } from 'luci
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ProgressRing } from './ProgressRing';
+import { ThemeToggle } from './ThemeToggle';
 import { cn } from '@/lib/utils';
 
 interface HeaderProps {
@@ -36,28 +37,31 @@ export function Header({ currentMonth, onPreviousMonth, onNextMonth, monthlyPerc
           </h1>
         </div>
 
-        <nav className="flex items-center gap-1">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <Link key={item.path} to={item.path}>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    'rounded-xl gap-1 sm:gap-2 transition-all px-2 sm:px-3',
-                    isActive 
-                      ? 'bg-primary/10 text-primary hover:bg-primary/15' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                  )}
-                >
-                  <item.icon className="w-4 h-4" />
-                  <span className="hidden xs:inline text-xs sm:text-sm">{item.label}</span>
-                </Button>
-              </Link>
-            );
-          })}
-        </nav>
+        <div className="flex items-center gap-1">
+          <nav className="flex items-center gap-1">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Link key={item.path} to={item.path}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      'rounded-xl gap-1 sm:gap-2 transition-all px-2 sm:px-3',
+                      isActive 
+                        ? 'bg-primary/10 text-primary hover:bg-primary/15' 
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    )}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    <span className="hidden xs:inline text-xs sm:text-sm">{item.label}</span>
+                  </Button>
+                </Link>
+              );
+            })}
+          </nav>
+          <ThemeToggle />
+        </div>
       </div>
 
       {/* Bottom row on mobile: Month switcher + Progress */}

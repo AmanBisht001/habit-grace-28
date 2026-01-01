@@ -11,6 +11,7 @@ interface HabitGridProps {
   currentMonth: Date;
   currentWeek: number;
   totalWeeks: number;
+  weekProgress: number;
   onPreviousWeek: () => void;
   onNextWeek: () => void;
   getHabitStatus: (habitId: string, date: string) => HabitStatus;
@@ -26,6 +27,7 @@ export function HabitGrid({
   currentMonth, 
   currentWeek,
   totalWeeks,
+  weekProgress,
   onPreviousWeek,
   onNextWeek,
   getHabitStatus, 
@@ -83,6 +85,7 @@ export function HabitGrid({
         <WeekSwitcher
           currentWeek={currentWeek}
           totalWeeks={totalWeeks}
+          weekProgress={weekProgress}
           onPreviousWeek={onPreviousWeek}
           onNextWeek={onNextWeek}
           showCompletionMessage={showWeekCompletionMessage}

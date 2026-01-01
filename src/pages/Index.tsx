@@ -4,6 +4,10 @@ import { addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, getD
 import { Header } from '@/components/Header';
 import { HabitsList } from '@/components/HabitsList';
 import { HabitGrid } from '@/components/HabitGrid';
+import { DailyGreeting } from '@/components/DailyGreeting';
+import { SaveIndicator } from '@/components/SaveIndicator';
+import { GoToTodayButton } from '@/components/GoToTodayButton';
+import { WeeklySummary } from '@/components/WeeklySummary';
 import { useHabitData } from '@/hooks/useHabitData';
 import { toast } from 'sonner';
 
@@ -11,11 +15,17 @@ const Index = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [currentWeek, setCurrentWeek] = useState(1);
   const [showWeekCompletionMessage, setShowWeekCompletionMessage] = useState(false);
+  const [showWeeklySummary, setShowWeeklySummary] = useState(false);
+  const [completedWeekNumber, setCompletedWeekNumber] = useState(1);
+  const [completedWeekPercentage, setCompletedWeekPercentage] = useState(0);
   const prevWeekCompleteRef = useRef(false);
   const hasInitialized = useRef(false);
   
   const { 
     habits, 
+    entries,
+    joinDate,
+    lastSaved,
     getHabitStatus, 
     toggleHabitStatus, 
     getHabitStats,
@@ -24,6 +34,8 @@ const Index = () => {
     addHabit,
     removeHabit,
     isDateBeforeJoin,
+    getYesterdayStats,
+    getWeekProgress,
   } = useHabitData();
 
   // Calculate total weeks in the current month
@@ -78,6 +90,20 @@ const Index = () => {
     return weeksArray[currentWeek - 1] || [];
   }, [weeksArray, currentWeek]);
 
+  // Calculate week progress
+  const weekProgress = useMemo(() => {
+    return getWeekProgress(currentWeekDays);
+  }, [getWeekProgress, currentWeekDays]);
+
+  // Check if we're viewing today's week
+  const isOnTodayWeek = useMemo(() => {
+    if (!isSameMonth(currentMonth, new Date())) return false;
+    for (const day of currentWeekDays) {
+      if (day && isToday(day)) return true;
+    }
+    return false;
+  }, [currentMonth, currentWeekDays]);
+
   // Find which week contains today and auto-navigate on load
   useEffect(() => {
     if (hasInitialized.current) return;
@@ -125,6 +151,12 @@ const Index = () => {
     if (isCurrentWeekComplete && !prevWeekCompleteRef.current) {
       const isLastWeek = currentWeek === totalWeeks;
       
+      // Show weekly summary
+      setCompletedWeekNumber(currentWeek);
+      setCompletedWeekPercentage(weekProgress);
+      setShowWeeklySummary(true);
+      setTimeout(() => setShowWeeklySummary(false), 3000);
+      
       if (isLastWeek) {
         // Auto-advance to next month
         setTimeout(() => {
@@ -142,9 +174,10 @@ const Index = () => {
       }
     }
     prevWeekCompleteRef.current = isCurrentWeekComplete;
-  }, [isCurrentWeekComplete, currentWeek, totalWeeks]);
+  }, [isCurrentWeekComplete, currentWeek, totalWeeks, weekProgress]);
 
   const monthlyStats = useMemo(() => getMonthlyStats(currentMonth), [getMonthlyStats, currentMonth]);
+  const yesterdayStats = useMemo(() => getYesterdayStats(), [getYesterdayStats]);
 
   const handlePreviousMonth = useCallback(() => {
     setCurrentMonth(prev => subMonths(prev, 1));
@@ -164,6 +197,51 @@ const Index = () => {
     setCurrentWeek(prev => Math.min(totalWeeks, prev + 1));
   }, [totalWeeks]);
 
+  const handleGoToToday = useCallback(() => {
+    const today = new Date();
+    setCurrentMonth(today);
+    
+    // Find today's week
+    const start = startOfMonth(today);
+    const end = endOfMonth(today);
+    const days = eachDayOfInterval({ start, end });
+    
+    const tempWeeks: (Date | null)[][] = [];
+    let tempWeekDays: (Date | null)[] = [];
+    
+    const firstDayOfWeek = getDay(start);
+    const mondayOffset = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+    
+    for (let i = 0; i < mondayOffset; i++) {
+      tempWeekDays.push(null);
+    }
+    
+    days.forEach((day) => {
+      tempWeekDays.push(day);
+      if (tempWeekDays.length === 7) {
+        tempWeeks.push(tempWeekDays);
+        tempWeekDays = [];
+      }
+    });
+    
+    if (tempWeekDays.length > 0) {
+      while (tempWeekDays.length < 7) {
+        tempWeekDays.push(null);
+      }
+      tempWeeks.push(tempWeekDays);
+    }
+    
+    for (let weekIndex = 0; weekIndex < tempWeeks.length; weekIndex++) {
+      const week = tempWeeks[weekIndex];
+      for (const day of week) {
+        if (day && isToday(day)) {
+          setCurrentWeek(weekIndex + 1);
+          return;
+        }
+      }
+    }
+  }, []);
+
   return (
     <div className="min-h-screen p-2 sm:p-4 lg:p-6">
       <div className="max-w-[1600px] mx-auto">
@@ -174,6 +252,12 @@ const Index = () => {
           monthlyPercentage={monthlyStats.percentage}
         />
 
+        <DailyGreeting yesterdayStats={yesterdayStats} />
+
+        <div className="flex items-center justify-end mb-3">
+          <GoToTodayButton onClick={handleGoToToday} isOnToday={isOnTodayWeek} />
+        </div>
+
         <div className="flex flex-col xl:grid xl:grid-cols-12 gap-4 sm:gap-6">
           {/* Left Panel - Habits List */}
           <motion.div
@@ -183,7 +267,9 @@ const Index = () => {
             className="xl:col-span-4 order-2 xl:order-1"
           >
             <HabitsList 
-              habits={habits} 
+              habits={habits}
+              entries={entries}
+              joinDate={joinDate}
               getHabitStats={getHabitStats}
               currentMonth={currentMonth}
               onUpdateHabit={updateHabit}
@@ -204,6 +290,7 @@ const Index = () => {
               currentMonth={currentMonth}
               currentWeek={currentWeek}
               totalWeeks={totalWeeks}
+              weekProgress={weekProgress}
               onPreviousWeek={handlePreviousWeek}
               onNextWeek={handleNextWeek}
               getHabitStatus={getHabitStatus}
@@ -255,9 +342,15 @@ const Index = () => {
         {/* Footer */}
         <footer className="mt-6 sm:mt-8 text-center text-[10px] sm:text-xs text-muted-foreground px-2">
           <p>Tap markers to cycle: Pending → Completed → Missed → Skipped</p>
-          <p className="mt-1">Data auto-saves to local storage</p>
         </footer>
       </div>
+
+      <SaveIndicator lastSaved={lastSaved} />
+      <WeeklySummary 
+        show={showWeeklySummary} 
+        weekNumber={completedWeekNumber} 
+        percentage={completedWeekPercentage} 
+      />
     </div>
   );
 };

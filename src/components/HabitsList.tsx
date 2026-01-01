@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Pencil, Trash2 } from 'lucide-react';
-import { Habit } from '@/types/habit';
+import { Pencil, Trash2, Flame } from 'lucide-react';
+import { Habit, HabitStatus } from '@/types/habit';
 import { ProgressRing } from './ProgressRing';
 import { EditHabitDialog } from './EditHabitDialog';
 import { AddHabitDialog } from './AddHabitDialog';
@@ -9,9 +9,12 @@ import { DeleteHabitDialog } from './DeleteHabitDialog';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { useAllHabitStreaks } from '@/hooks/useHabitStreaks';
 
 interface HabitsListProps {
   habits: Habit[];
+  entries: Record<string, HabitStatus>;
+  joinDate: string;
   getHabitStats: (habitId: string, month: Date) => { completed: number; remaining: number; percentage: number };
   currentMonth: Date;
   onUpdateHabit: (habit: Habit) => void;
@@ -19,11 +22,14 @@ interface HabitsListProps {
   onRemoveHabit: (habitId: string) => void;
 }
 
-export function HabitsList({ habits, getHabitStats, currentMonth, onUpdateHabit, onAddHabit, onRemoveHabit }: HabitsListProps) {
+export function HabitsList({ habits, entries, joinDate, getHabitStats, currentMonth, onUpdateHabit, onAddHabit, onRemoveHabit }: HabitsListProps) {
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deletingHabit, setDeletingHabit] = useState<Habit | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  
+  const habitIds = habits.map(h => h.id);
+  const streaks = useAllHabitStreaks(habitIds, entries, joinDate);
 
   const handleEditClick = (habit: Habit) => {
     setEditingHabit(habit);
@@ -58,6 +64,7 @@ export function HabitsList({ habits, getHabitStats, currentMonth, onUpdateHabit,
             const stats = getHabitStats(habit.id, currentMonth);
             const isGoalReached = stats.percentage >= 100;
             const isBehind = stats.percentage < (new Date().getDate() / 30) * 100 - 10;
+            const streak = streaks[habit.id];
 
             return (
               <motion.div
@@ -74,12 +81,27 @@ export function HabitsList({ habits, getHabitStats, currentMonth, onUpdateHabit,
                 <span className="text-lg sm:text-2xl flex-shrink-0">{habit.emoji}</span>
                 
                 <div className="flex-1 min-w-0">
-                  <p className="habit-name truncate text-sm sm:text-base">{habit.name}</p>
-                  <p className="habit-goal text-[10px] sm:text-xs">
-                    {stats.completed} / {habit.monthlyGoal} days
-                    {isGoalReached && <span className="ml-1 sm:ml-2 text-success">✓</span>}
-                    {isBehind && !isGoalReached && <span className="ml-1 sm:ml-2 text-warning">⚠</span>}
-                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="habit-name truncate text-sm sm:text-base">{habit.name}</p>
+                    {streak && streak.currentStreak > 0 && streak.isActive && (
+                      <span className="flex items-center gap-0.5 text-xs text-warning font-medium">
+                        <Flame className="w-3 h-3 text-warning" />
+                        {streak.currentStreak}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <p className="habit-goal text-[10px] sm:text-xs">
+                      {stats.completed} / {habit.monthlyGoal} days
+                      {isGoalReached && <span className="ml-1 sm:ml-2 text-success">✓</span>}
+                      {isBehind && !isGoalReached && <span className="ml-1 sm:ml-2 text-warning">⚠</span>}
+                    </p>
+                    {streak && streak.longestStreak > streak.currentStreak && (
+                      <span className="text-[9px] sm:text-[10px] text-muted-foreground">
+                        Best: {streak.longestStreak}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-1 sm:gap-2">

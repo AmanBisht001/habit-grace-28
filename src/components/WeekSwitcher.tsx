@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 interface WeekSwitcherProps {
   currentWeek: number;
   totalWeeks: number;
+  weekProgress: number;
   onPreviousWeek: () => void;
   onNextWeek: () => void;
   showCompletionMessage?: boolean;
@@ -13,6 +14,7 @@ interface WeekSwitcherProps {
 export function WeekSwitcher({
   currentWeek,
   totalWeeks,
+  weekProgress,
   onPreviousWeek,
   onNextWeek,
   showCompletionMessage,
@@ -33,8 +35,9 @@ export function WeekSwitcher({
           <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
         </Button>
         
-        <div className="text-center min-w-[70px] sm:min-w-[100px]">
+        <div className="text-center min-w-[90px] sm:min-w-[120px]">
           <span className="text-sm sm:text-base font-medium">Week {currentWeek}</span>
+          <span className="text-[10px] sm:text-xs text-muted-foreground ml-1">· {weekProgress}%</span>
         </div>
         
         <Button

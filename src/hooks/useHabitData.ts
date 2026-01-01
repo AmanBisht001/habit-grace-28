@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Habit, HabitData, HabitStatus, DEFAULT_HABITS } from '@/types/habit';
-import { format, isBefore, isToday, parseISO, startOfDay } from 'date-fns';
+import { format, isBefore, isToday, parseISO, startOfDay, subDays, isAfter } from 'date-fns';
 
 const STORAGE_KEY = 'habit-tracker-data';
 
@@ -29,9 +29,11 @@ const getInitialData = (): HabitData => {
 
 export function useHabitData() {
   const [data, setData] = useState<HabitData>(getInitialData);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    setLastSaved(new Date());
   }, [data]);
 
   const updateHabit = useCallback((updatedHabit: Habit) => {
@@ -227,9 +229,54 @@ export function useHabitData() {
       .slice(0, 5);
   }, [data.habits, getHabitStats]);
 
+  const getYesterdayStats = useCallback(() => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const dateStr = format(yesterday, 'yyyy-MM-dd');
+    
+    let completed = 0;
+    let skipped = 0;
+    
+    data.habits.forEach(habit => {
+      const status = data.entries[`${habit.id}-${dateStr}`];
+      if (status === 'completed') completed++;
+      else if (status === 'skipped' || status === 'missed') skipped++;
+    });
+    
+    return { completed, total: data.habits.length, skipped };
+  }, [data.habits, data.entries]);
+
+  const getWeekProgress = useCallback((weekDays: (Date | null)[]) => {
+    const validDays = weekDays.filter((d): d is Date => d !== null);
+    if (validDays.length === 0 || data.habits.length === 0) return 0;
+    
+    let totalPossible = 0;
+    let totalCompleted = 0;
+    
+    validDays.forEach(day => {
+      const dateStr = format(day, 'yyyy-MM-dd');
+      const joinDateParsed = parseISO(data.joinDate);
+      const dayDate = parseISO(dateStr);
+      
+      // Only count days after join date
+      if (!isBefore(dayDate, startOfDay(joinDateParsed))) {
+        data.habits.forEach(habit => {
+          totalPossible++;
+          if (data.entries[`${habit.id}-${dateStr}`] === 'completed') {
+            totalCompleted++;
+          }
+        });
+      }
+    });
+    
+    return totalPossible > 0 ? Math.round((totalCompleted / totalPossible) * 100) : 0;
+  }, [data.habits, data.entries, data.joinDate]);
+
   return {
     habits: data.habits,
+    entries: data.entries,
     joinDate: data.joinDate,
+    lastSaved,
     updateHabit,
     addHabit,
     removeHabit,
@@ -242,5 +289,7 @@ export function useHabitData() {
     getDailyStats,
     getWeeklyStats,
     getTopHabits,
+    getYesterdayStats,
+    getWeekProgress,
   };
 }

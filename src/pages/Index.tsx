@@ -358,6 +358,9 @@ const Index = () => {
           <div className="flex items-center justify-center pt-2">
             <PrivacyInfo />
           </div>
+          <p className="text-muted-foreground/60 pt-2">
+            Created by <span className="font-medium text-muted-foreground">Aman Singh Bisht</span>
+          </p>
         </footer>
       </div>
 

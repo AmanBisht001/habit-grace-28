@@ -71,6 +71,13 @@ export function useHabitData() {
     });
   }, []);
 
+  const restoreHabit = useCallback((habit: Habit) => {
+    setData((prev) => ({
+      ...prev,
+      habits: [...prev.habits, habit],
+    }));
+  }, []);
+
   const toggleHabitStatus = useCallback((habitId: string, date: string) => {
     setData((prev) => {
       const key = `${habitId}-${date}`;
@@ -280,6 +287,7 @@ export function useHabitData() {
     updateHabit,
     addHabit,
     removeHabit,
+    restoreHabit,
     toggleHabitStatus,
     setHabitStatus,
     getHabitStatus,

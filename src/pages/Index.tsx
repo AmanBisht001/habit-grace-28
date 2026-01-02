@@ -8,6 +8,9 @@ import { DailyGreeting } from '@/components/DailyGreeting';
 import { SaveIndicator } from '@/components/SaveIndicator';
 import { GoToTodayButton } from '@/components/GoToTodayButton';
 import { WeeklySummary } from '@/components/WeeklySummary';
+import { OnboardingTour } from '@/components/OnboardingTour';
+import { OfflineIndicator } from '@/components/OfflineIndicator';
+import { PrivacyInfo } from '@/components/PrivacyInfo';
 import { useHabitData } from '@/hooks/useHabitData';
 import { toast } from 'sonner';
 
@@ -33,6 +36,7 @@ const Index = () => {
     updateHabit,
     addHabit,
     removeHabit,
+    restoreHabit,
     isDateBeforeJoin,
     getYesterdayStats,
     getWeekProgress,
@@ -271,10 +275,12 @@ const Index = () => {
               entries={entries}
               joinDate={joinDate}
               getHabitStats={getHabitStats}
+              getHabitStatus={getHabitStatus}
               currentMonth={currentMonth}
               onUpdateHabit={updateHabit}
               onAddHabit={addHabit}
               onRemoveHabit={removeHabit}
+              onRestoreHabit={restoreHabit}
             />
           </motion.div>
 
@@ -307,14 +313,16 @@ const Index = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
           className="mt-4 sm:mt-6 glass-card p-3 sm:p-4 flex items-center justify-center gap-3 sm:gap-6 flex-wrap"
+          role="region"
+          aria-label="Habit status legend"
         >
           <span className="text-xs sm:text-sm text-muted-foreground font-medium">Legend:</span>
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="habit-marker habit-marker-empty w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg" />
+            <div className="habit-marker habit-marker-empty w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg" aria-hidden="true" />
             <span className="text-[10px] sm:text-xs text-muted-foreground">Pending</span>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="habit-marker habit-marker-completed w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg flex items-center justify-center">
+            <div className="habit-marker habit-marker-completed w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg flex items-center justify-center" aria-hidden="true">
               <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
@@ -322,7 +330,7 @@ const Index = () => {
             <span className="text-[10px] sm:text-xs text-muted-foreground">Done</span>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="habit-marker habit-marker-skipped w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg flex items-center justify-center">
+            <div className="habit-marker habit-marker-skipped w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg flex items-center justify-center" aria-hidden="true">
               <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-warning-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -330,7 +338,7 @@ const Index = () => {
             <span className="text-[10px] sm:text-xs text-muted-foreground">Skipped</span>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="habit-marker habit-marker-paused w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg flex items-center justify-center">
+            <div className="habit-marker habit-marker-paused w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg flex items-center justify-center" aria-hidden="true">
               <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 9v6m4-6v6" />
               </svg>
@@ -340,8 +348,16 @@ const Index = () => {
         </motion.div>
 
         {/* Footer */}
-        <footer className="mt-6 sm:mt-8 text-center text-[10px] sm:text-xs text-muted-foreground px-2">
+        <footer className="mt-6 sm:mt-8 text-center text-[10px] sm:text-xs text-muted-foreground px-2 space-y-2">
           <p>Tap markers to cycle: Pending → Completed → Missed → Skipped</p>
+          <p className="text-muted-foreground/70">
+            Use <kbd className="px-1.5 py-0.5 rounded bg-muted text-[9px] font-mono">Tab</kbd> to navigate, 
+            <kbd className="px-1.5 py-0.5 rounded bg-muted text-[9px] font-mono ml-1">Enter</kbd> or 
+            <kbd className="px-1.5 py-0.5 rounded bg-muted text-[9px] font-mono ml-1">Space</kbd> to toggle
+          </p>
+          <div className="flex items-center justify-center pt-2">
+            <PrivacyInfo />
+          </div>
         </footer>
       </div>
 
@@ -351,6 +367,8 @@ const Index = () => {
         weekNumber={completedWeekNumber} 
         percentage={completedWeekPercentage} 
       />
+      <OnboardingTour />
+      <OfflineIndicator />
     </div>
   );
 };
